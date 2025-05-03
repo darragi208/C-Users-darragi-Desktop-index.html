@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🎨 Drawing Challenge</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .dark-mode {
+      background-color: #1e1e1e;
+      color: #fff;
+    }
+
+    header {
+      background-color: #6c5ce7;
+      color: white;
+      padding: 20px;
+    }
+
+    .container {
+      padding: 20px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    canvas {
+      border: 2px solid #6c5ce7;
+      background-color: white;
+      margin-top: 20px;
+    }
+
+    .toolbar button,
+    input[type="color"],
+    input[type="range"] {
+      margin: 5px;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+    }
+
+    #challenge-task {
+      font-size: 20px;
+      margin-top: 10px;
+    }
+
+    #timer {
+      font-size: 18px;
+      margin-top: 10px;
+      color: red;
+    }
+
+    .dark-mode canvas {
+      background-color: #fff;
+    }
+
+    .dark-mode .toolbar button {
+      background-color: #333;
+      color: white;
+    }
+
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>🎨 Drawing Challenge</h1>
+  </header>
+
+  <div class="container">
+    <button onclick="toggleTheme()">🌓 Toggle Theme</button>
+    <button onclick="clearCanvas()">🧹 Clear</button>
+    <button onclick="startChallenge()">🔥 Start Challenge</button>
+    <button onclick="saveImage()">📥 Save Drawing</button>
+    <br>
+    <input type="color" id="colorPicker" value="#000000">
+    <input type="range" id="penSize" min="1" max="20" value="3">
+    
+    <div id="challenge-task"></div>
+    <div id="timer"></div>
+
+    <canvas id="drawArea" width="700" height="450"></canvas>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("drawArea");
+    const ctx = canvas.getContext("2d");
+    let drawing = false;
+    let prevX = 0, prevY = 0;
+    let timerInterval;
+
+    const tasks = [
+      "🎯 Draw a cat",
+      "🎯 Draw a house",
+      "🎯 Draw a car",
+      "🎯 Draw a tree",
+      "🎯 Draw a robot",
+      "🎯 Draw a dragon",
+      "🎯 Draw a rocket",
+      "🎯 Draw a flower",
+      "🎯 Draw a face",
+      "🎯 Draw a pizza"
+    ];
+
+    function draw(e) {
+      if (!drawing) return;
+      const color = document.getElementById("colorPicker").value;
+      const size = document.getElementById("penSize").value;
+
+      ctx.strokeStyle = color;
+      ctx.lineWidth = size;
+      ctx.lineCap = "round";
+
+      ctx.beginPath();
+      ctx.moveTo(prevX, prevY);
+      ctx.lineTo(e.offsetX, e.offsetY);
+      ctx.stroke();
+
+      prevX = e.offsetX;
+      prevY = e.offsetY;
+    }
+
+    canvas.addEventListener("mousedown", (e) => {
+      drawing = true;
+      prevX = e.offsetX;
+      prevY = e.offsetY;
+    });
+
+    canvas.addEventListener("mouseup", () => drawing = false);
+    canvas.addEventListener("mousemove", draw);
+
+    function clearCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function toggleTheme() {
+      document.body.classList.toggle("dark-mode");
+    }
+
+    function startChallenge() {
+      clearCanvas();
+      const task = tasks[Math.floor(Math.random() * tasks.length)];
+      document.getElementById("challenge-task").innerText = task;
+
+      let timeLeft = 60;
+      document.getElementById("timer").innerText = `⏱️ Time: ${timeLeft}s`;
+
+      clearInterval(timerInterval); // Stop previous timer if any
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        document.getElementById("timer").innerText = `⏱️ Time: ${timeLeft}s`;
+
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          document.getElementById("timer").innerText = "✅ Challenge complete!";
+        }
+      }, 1000);
+    }
+
+    function saveImage() {
+      const link = document.createElement("a");
+      link.download = "my_drawing.png";
+      link.href = canvas.toDataURL();
+      link.click();
+    }
+  </script>
+
+</body>
+</html>
